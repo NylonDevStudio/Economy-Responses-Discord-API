@@ -10,13 +10,23 @@ import (
 	"strconv"
 )
 
-type Person struct {
+type begR struct {
 	ID   int `json:"id"`
-	Name string `json:"name"`
-	Age  int `json:"age"`
+	Posne string `json:"posne"`
+	Response int `json:"response"`
 }
 
-func main() {	file, err := os.Open("csv/beg.csv")
+func main() {	
+
+    router := gin.Default()
+    router.GET("/beg", getBeg)
+
+    router.Run("localhost:8080")
+}
+
+// GET - Beg Responses
+func getBeg(c *gin.Context) {
+  file, err := os.Open("csv/beg.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,45 +38,21 @@ func main() {	file, err := os.Open("csv/beg.csv")
 		log.Fatal(err)
 	}
 
-	var beg []beg
+	var begRos []begR
 	for _, record := range records[1:] {
 		id, _ := strconv.Atoi(record[0])
-		posne, _ := strconv.Atoi(record[1])
-		response := Response{
+		response, _ := strconv.Atoi(record[1])
+		begr := begR{
 			ID:   id,
-			Posne: posne,
-			Response:  record[2]
+			Posne: record[1],
+			Response:  response,
 		}
-		begR = append(begR, response)
+		begRos = append(begRos, begr)
 	}
 
-	fmt.Println(begR)
-
-    router := gin.Default()
-    router.GET("/beg", getBeg)
-    router.GET("/searchlocal", getSearchlocal)
-
-    router.Run("localhost:8080")
-}
-
-// GET - Beg Responses
-func getBeg(c *gin.Context) {
-    c.IndentedJSON(http.StatusOK, beg)
+  	fmt.Println(begRos)
+    c.IndentedJSON(http.StatusOK, begRos)
 }
 
 // IGNORE BELOW
 
-// postAlbums adds an album from JSON received in the request body.
-func postAlbums(c *gin.Context) {
-    var newAlbum album
-
-    // Call BindJSON to bind the received JSON to
-    // newAlbum.
-    if err := c.BindJSON(&newAlbum); err != nil {
-        return
-    }
-
-    // Add the new album to the slice.
-    albums = append(albums, newAlbum)
-    c.IndentedJSON(http.StatusCreated, newAlbum)
-}
